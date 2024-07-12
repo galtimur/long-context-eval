@@ -1,24 +1,34 @@
 """
-File taken from
+File taken from and edited
 https://github.com/JetBrains-Research/lca-baselines/blob/main/project_level_code_completion/composers/
 """
 
 import os
-from datapoint_base import DatapointBase
+from typing import Dict, List
+
+from data.PLCC.datapoint_base import DatapointBase
 
 
 class PathDistanceComposer:
-
     def __init__(
-            self,
-            lang_sep_symbol="LANGSEP\n",
-            meta_info_sep_symbol="\n",
-            extension=".py",
+        self,
+        lang_extension=".py",
+        allowed_extensions=[".md"],
+        filter_extensions=True,
+        completion_types=["infile", "inproject"],
     ):
+        self.lang_extension = lang_extension
+        self.allowed_extensions = allowed_extensions + [lang_extension]
+        self.filter_extensions = filter_extensions
+        self.completion_types = completion_types
 
-        self.lang_sep_symbol = lang_sep_symbol
-        self.meta_info_sep_symbol = meta_info_sep_symbol
-        self.extension = extension
+    def filter_paths(self, list_of_filepaths):
+        filtered_lists = [
+            file
+            for file in list_of_filepaths
+            if any(file.endswith(ext) for ext in self.allowed_extensions)
+        ]
+        return filtered_lists
 
     @staticmethod
     def _path_distance(path_from, path_to):
@@ -34,17 +44,17 @@ class PathDistanceComposer:
             len(divided_path_to) - common_len - 1
         )
 
-    def _sort_filepathes(self, path_from, list_of_filepathes):
+    def _sort_filepaths(self, path_from, list_of_filepaths):
         max_len = max(
             [
                 len(os.path.normpath(path).split(os.path.sep))
-                for path in list_of_filepathes
+                for path in list_of_filepaths
             ]
         )
         max_len += len(os.path.normpath(path_from).split(os.path.sep))
         paths_by_distance = [list() for _ in range(max_len)]
 
-        for path_to in list_of_filepathes:
+        for path_to in list_of_filepaths:
             dist = self._path_distance(path_from, path_to)
             paths_by_distance[dist].append(path_to)
         return [path for path_group in paths_by_distance for path in path_group]
@@ -52,23 +62,33 @@ class PathDistanceComposer:
     def context_composer(self, datapoint: DatapointBase) -> str:
         context = datapoint.get_context()
         completion = datapoint.get_completion()
-        repo_name = datapoint.repo_name
         assert len(completion) == 1, "Only one file should be completed"
         completion_path = list(completion)[0]
-        sorted_pathes = self._sort_filepathes(completion_path, list(context))
-        composed_content = [
-            path + self.meta_info_sep_symbol + context[path]
-            for path in sorted_pathes[::-1]
-        ]
+        sorted_paths = self._sort_filepaths(completion_path, list(context))
+        if self.filter_extensions:
+            sorted_paths = self.filter_paths(sorted_paths)
+        # ! Important ! Most relevant files are at the end!
+        sorted_paths = sorted_paths[::-1]
+        context = {path: context[path] for path in sorted_paths}
 
-        composed_content.append(completion_path + self.meta_info_sep_symbol)
+        return context
 
-        repo_metainfo = f"{self.extension}{self.lang_sep_symbol}{repo_name}{self.meta_info_sep_symbol}"
+    def completion_composer(
+        self, datapoint: DatapointBase
+    ) -> Dict[str, List[List[str]]]:
+        """
+        returns dict completion_type: completion_list
+        completion_list: list of tuples (ground_truth_line, completion_prefix)
+        """
 
-        return repo_metainfo + self.lang_sep_symbol.join(composed_content)
-
-    def completion_composer(self, datapoint: DatapointBase) -> str:
         completion = datapoint.completion_dict
         assert len(completion) == 1, "Only one file should be completed"
-        content = list(completion.values())[0]
-        return content
+        content = list(completion.values())[0].split("\n")
+        completions = dict()
+        for completion_type in self.completion_types:
+            lines = datapoint.completion_lines[completion_type]
+            gt = [content[line] for line in lines]
+            prefixes = ["\n".join(content[:line]) for line in lines]
+            completions[completion_type] = [list(pair) for pair in zip(gt, prefixes)]
+
+        return completions

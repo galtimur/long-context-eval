@@ -1,0 +1,4 @@
+data:
+  composer_name: "path_distance"
+  data_folder: /mnt/data2/galimzyanov/long-contex-eval/datasets/
+  force_prepare: false

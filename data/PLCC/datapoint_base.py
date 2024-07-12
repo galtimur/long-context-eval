@@ -11,7 +11,7 @@ from typing import Callable
 class DatapointBase:
     repo_id: int
     repo_name: str
-    completion_lines: dict[str, list[int]]
+    completion_lines: dict[str, list[int]] = None
     context_dict: dict[str, str] | None = None
     # context_dict: keys are filepaths, values are file contents
     completion_dict: dict[str, str] | None = None

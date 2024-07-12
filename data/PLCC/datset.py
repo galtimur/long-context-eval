@@ -1,13 +1,14 @@
-from torch.utils.data import Dataset
-import torch
 import json
-import time
 import re
-from datasets import load_dataset, load_from_disk
-from pathlib import Path
-from transformers.generation import StoppingCriteria, StoppingCriteriaList
-from tqdm import tqdm
+import time
 from functools import partial
+from pathlib import Path
+
+import torch
+from datasets import load_dataset, load_from_disk
+from torch.utils.data import Dataset
+from tqdm import tqdm
+from transformers.generation import StoppingCriteria, StoppingCriteriaList
 
 # from eval_ppl import evaluate_ppl_red_pajamas, evaluate_base_model
 
