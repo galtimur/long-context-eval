@@ -4,8 +4,8 @@ https://github.com/JetBrains-Research/lca-baselines/blob/main/project_level_code
 """
 
 import os
-from typing import Dict, List
 from collections import defaultdict
+from typing import Dict, List
 
 from data.PLCC.datapoint_base import DatapointBase
 

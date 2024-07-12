@@ -1,8 +1,9 @@
 from typing import Dict
+
 from omegaconf import DictConfig
 
-from data.PLCC.preparator import Preparator
 from data.PLCC.plcc_dataset import PLCCDataset
+from data.PLCC.preparator import Preparator
 
 
 def get_datasets(data_args: DictConfig) -> Dict[str, PLCCDataset]:
