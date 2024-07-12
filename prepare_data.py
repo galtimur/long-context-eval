@@ -9,6 +9,9 @@ config = OmegaConf.load(config_path)
 data_args, model_args, eval_args = config.data, config.model, config.eval
 # config = OmegaConf.to_container(config, resolve=True)
 
+# TODO add context lengths to config
+# TODO add check that the real context length is larger that config value
+
 dl_fetcher = DataloadersFetcher(config)
 dataloaders = dl_fetcher.get_dataloaders()
 dataloader = dataloaders["medium_context"]

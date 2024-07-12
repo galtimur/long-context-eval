@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import Callable
 
 from datasets import Dataset, load_dataset
 from omegaconf import DictConfig
@@ -8,17 +8,16 @@ from tqdm import tqdm
 
 from data.PLCC.context_composer import PathDistanceComposer
 from data.PLCC.datapoint_base import DatapointBase
-from data.PLCC.datapoint_commit_dataset import DatapointCommitDataset
 
 
-def save_jsonl(data, file_path):
+def save_jsonl(data: list[dict], file_path: str | Path) -> None:
     with open(file_path, "w") as f:
         for entry in data:
             json.dump(entry, f)
             f.write("\n")
 
 
-def read_jsonl(file_path):
+def read_jsonl(file_path: str | Path) -> list[dict]:
     data = []
     with open(file_path, "r") as jsonl_file:
         for line in jsonl_file:
@@ -47,12 +46,14 @@ def convert_hf_to_datapoint(hf_dataset: Dataset) -> list[DatapointBase]:
         dp["completion_dict"] = {
             hf_dp["completion_file"]["filename"]: hf_dp["completion_file"]["content"]
         }
-        data.append(DatapointCommitDataset(**dp))
+        data.append(DatapointBase(**dp))
 
     return data
 
 
-def prepare_data(data: List[DatapointBase], context_composer, completion_composer):
+def prepare_data(
+    data: list[DatapointBase], context_composer: Callable, completion_composer: Callable
+) -> list[dict]:
     print("Data Preparation...")
     prepared_data = []
     for datapoint in tqdm(data):
@@ -73,7 +74,7 @@ class Preparator:
         self,
         data_args: DictConfig,
         dataset_name: str = "JetBrains-Research/lca-project-level-code-completion",
-    ):
+    ) -> None:
         self.dataset_name = dataset_name
         self.data_folder = Path(data_args.data_folder)
         self.data_folder.mkdir(parents=True, exist_ok=True)
@@ -85,8 +86,8 @@ class Preparator:
         self.context_sizes = [
             # "small_context",
             "medium_context",
-            "large_context",
-            "huge_context",
+            # "large_context",
+            # "huge_context",
         ]
         self.composer_name = data_args.composer_name
         if self.composer_name == "path_distance":
@@ -96,7 +97,7 @@ class Preparator:
                 f"composer {self.composer_name} is not implemented"
             )
 
-    def get_prepared_dataset(self):
+    def get_prepared_datasets(self) -> list[dict]:
         datasets = []
         for context_size in self.context_sizes:
             dataset_filename = f"plcc_{self.composer_name}_{context_size}.jsonl"

@@ -5,7 +5,6 @@ https://github.com/JetBrains-Research/lca-baselines/blob/main/project_level_code
 
 import os
 from collections import defaultdict
-from typing import Dict, List
 
 from data.PLCC.datapoint_base import DatapointBase
 
@@ -13,17 +12,17 @@ from data.PLCC.datapoint_base import DatapointBase
 class PathDistanceComposer:
     def __init__(
         self,
-        lang_extension=".py",
-        allowed_extensions=[".md"],
-        filter_extensions=True,
-        completion_types=["infile", "inproject"],
+        lang_extension: str = ".py",
+        allowed_extensions: list[str] = [".md"],
+        filter_extensions: bool = True,
+        completion_types: list[str] = ["infile", "inproject"],
     ):
         self.lang_extension = lang_extension
         self.allowed_extensions = allowed_extensions + [lang_extension]
         self.filter_extensions = filter_extensions
         self.completion_types = completion_types
 
-    def filter_paths(self, list_of_filepaths):
+    def filter_paths(self, list_of_filepaths: list[str]) -> list[str]:
         filtered_lists = [
             file
             for file in list_of_filepaths
@@ -32,7 +31,7 @@ class PathDistanceComposer:
         return filtered_lists
 
     @staticmethod
-    def _path_distance(path_from, path_to):
+    def _path_distance(path_from: str, path_to: str) -> int:
         divided_path_from = os.path.normpath(path_from).split(os.path.sep)
         divided_path_to = os.path.normpath(path_to).split(os.path.sep)
         len_from = len(divided_path_from)
@@ -47,7 +46,7 @@ class PathDistanceComposer:
         path_distance = (len_from - common_len - 1) + (len_to - common_len - 1)
         return path_distance
 
-    def sort_filepaths(self, path_from, list_of_filepaths):
+    def sort_filepaths(self, path_from: str, list_of_filepaths: list[str]) -> list[str]:
         paths_by_distance = defaultdict(list)
 
         for path_to in list_of_filepaths:
@@ -58,9 +57,9 @@ class PathDistanceComposer:
             paths.extend(sorted(paths_by_distance[dist]))
         return paths
 
-    def context_composer(self, datapoint: DatapointBase) -> str:
-        context = datapoint.get_context()
-        completion = datapoint.get_completion()
+    def context_composer(self, datapoint: DatapointBase) -> dict[str, str]:
+        context = datapoint.context_dict
+        completion = datapoint.completion_dict
         assert len(completion) == 1, "Only one file should be completed"
         completion_path = list(completion)[0]
         sorted_paths = self.sort_filepaths(completion_path, list(context))
@@ -72,9 +71,7 @@ class PathDistanceComposer:
 
         return context
 
-    def completion_composer(
-        self, datapoint: DatapointBase
-    ) -> Dict[str, List[List[str]]]:
+    def completion_composer(self, datapoint: DatapointBase) -> list[dict[str, str]]:
         """
         returns dict completion_type: completion_list
         completion_list: list of tuples (ground_truth_line, completion_prefix)

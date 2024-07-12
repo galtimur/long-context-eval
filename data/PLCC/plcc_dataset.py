@@ -1,10 +1,8 @@
-from typing import Dict, List
-
 from torch.utils.data import Dataset
 
 
 class PLCCDataset(Dataset):
-    def __init__(self, prepared_dataset) -> None:
+    def __init__(self, prepared_dataset: list[dict]) -> None:
         self.prepared_dataset = prepared_dataset
         self.samples = []
         self.lengths = [len(sample["completion"]) for sample in prepared_dataset]
@@ -18,7 +16,7 @@ class PLCCDataset(Dataset):
     def __getitem__(self, idx) -> dict[str, str]:
         return self.get_sample_by_index(idx)
 
-    def get_sample_by_index(self, idx):
+    def get_sample_by_index(self, idx: int) -> dict[str, str]:
         idx_in, idx_out = self.index[idx]
         item_project = self.prepared_dataset[idx_in]
         project_context = self.merge_context(item_project["context"])
@@ -36,7 +34,7 @@ class PLCCDataset(Dataset):
         return sample
 
     @staticmethod
-    def merge_context(context: Dict[str, str]) -> str:
+    def merge_context(context: dict[str, str]) -> str:
         context_lines = []
         for key, value in context.items():
             if value == "":
@@ -48,7 +46,7 @@ class PLCCDataset(Dataset):
         return "\n".join(context_lines)
 
     @staticmethod
-    def build_index(lengths: List[int]):
+    def build_index(lengths: list[int]) -> list[tuple[int, int]]:
         index = []
         for outer_index, inner_len in enumerate(lengths):
             for inner_index in range(inner_len):

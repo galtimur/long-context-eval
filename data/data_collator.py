@@ -11,7 +11,7 @@ class DataCollator:
         batch_size: int,
         tokenizer: AutoTokenizer,
         context_key: str = "context",
-    ):
+    ) -> None:
         self.batch_size = batch_size
         self.buffer = []
         self.tokenizer = tokenizer
