@@ -15,7 +15,7 @@ class DataloadersFetcher:
         self.eval_args = config.eval
 
         # TODO move context tokenization to the datasets to reduce redundant work
-        #  But be carefull with sos and other special tokens
+        #  But be careful with sos and other special tokens
 
         self.tokenizer = AutoTokenizer.from_pretrained(config.model.model_name)
         self.data_collator = DataCollator(
