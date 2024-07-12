@@ -90,6 +90,8 @@ class PathDistanceComposer:
             prefixes = ["\n".join(content[:line]) for line in lines]
 
             for gt, prefix in zip(gts, prefixes):
-                completions.append({"type": completion_type, "gt": gt, "prefix": prefix})
+                completions.append(
+                    {"type": completion_type, "gt": gt, "prefix": prefix}
+                )
 
         return completions

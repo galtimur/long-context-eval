@@ -14,7 +14,6 @@ from transformers.generation import StoppingCriteria, StoppingCriteriaList
 
 class PLCCDataset(Dataset):
     def __init__(self, prepared_dataset) -> None:
-
         self.prepared_dataset = prepared_dataset
         self.samples = []
         self.lengths = [len(sample["completion"]) for sample in prepared_dataset]
@@ -33,9 +32,15 @@ class PLCCDataset(Dataset):
         item_project = self.prepared_dataset[idx_in]
         project_context = self.merge_context(item_project["context"])
         item_completion = item_project["completion"][idx_out]
-        file_context = "\n" + item_project["completion_path"] + "\n\n" + item_completion["prefix"]
+        file_context = (
+            "\n" + item_project["completion_path"] + "\n\n" + item_completion["prefix"]
+        )
         full_context = (project_context + file_context).strip() + "\n"
-        sample = {"context": full_context, "gt": item_completion["gt"], "type": item_completion["type"]}
+        sample = {
+            "context": full_context,
+            "gt": item_completion["gt"],
+            "type": item_completion["type"],
+        }
 
         return sample
 
@@ -45,7 +50,9 @@ class PLCCDataset(Dataset):
         for key, value in context.items():
             if value == "":
                 value = "# empty file"
-            context_lines.extend([key, "", value, ""])  # empty string is for additional new-line
+            context_lines.extend(
+                [key, "", value, ""]
+            )  # empty string is for additional new-line
 
         return "\n".join(context_lines)
 

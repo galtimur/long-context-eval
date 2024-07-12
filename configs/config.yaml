@@ -2,3 +2,8 @@ data:
   composer_name: "path_distance"
   data_folder: /mnt/data2/galimzyanov/long-contex-eval/datasets/
   force_prepare: false
+model:
+  model_name: "deepseek-ai/deepseek-coder-1.3b-base"
+eval:
+  batch_size: 5
+  context_len: 16384 # 16384, 2048
