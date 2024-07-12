@@ -59,6 +59,7 @@ def prepare_data(data: List[DatapointBase], context_composer, completion_compose
         new_datapoint = dict()
         new_datapoint["repo_id"] = datapoint.repo_id
         new_datapoint["repo_name"] = datapoint.repo_name
+        new_datapoint["completion_path"] = list(datapoint.completion_dict.keys())[0]
         new_datapoint["context"] = context_composer(datapoint)
         new_datapoint["completion"] = completion_composer(datapoint)
 
@@ -78,8 +79,11 @@ class Preparator:
         self.data_folder.mkdir(parents=True, exist_ok=True)
         self.force_prepare = data_args.force_prepare
 
+        # We do not use small context. It can cause problems.
+        # Author: These are repositories that eventually became Python,
+        # and we caught them at a time when Python code was not there
         self.context_sizes = [
-            "small_context",
+            # "small_context",
             "medium_context",
             "large_context",
             "huge_context",

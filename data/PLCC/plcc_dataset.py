@@ -1,11 +1,10 @@
 import json
-import re
 import time
 from functools import partial
 from pathlib import Path
-
+from typing import Dict, List
 import torch
-from datasets import load_dataset, load_from_disk
+from datasets import load_from_disk
 from torch.utils.data import Dataset
 from tqdm import tqdm
 from transformers.generation import StoppingCriteria, StoppingCriteriaList
@@ -13,25 +12,50 @@ from transformers.generation import StoppingCriteria, StoppingCriteriaList
 # from eval_ppl import evaluate_ppl_red_pajamas, evaluate_base_model
 
 
-class LcaPythonCompletionDataset(Dataset):
-    def __init__(self) -> None:
-        self.dataset_name = "jenyag/repo-codegen-py-py-context-path-distance"
-        dataset = load_dataset(self.dataset_name)["test"]
+class PLCCDataset(Dataset):
+    def __init__(self, prepared_dataset) -> None:
+
+        self.prepared_dataset = prepared_dataset
         self.samples = []
-        for sample in dataset:
-            for context, ground_truth in zip(sample["file_context"], sample["gt"]):
-                context = sample["project_context"] + context["content"]
-                if len(context) == 0:
-                    continue
-                if context[-1] != "\n":
-                    context = context + "\n"
-                self.samples.append({"context": context, "gt": ground_truth})
+        self.lengths = [len(sample["completion"]) for sample in prepared_dataset]
+        self.len = sum(self.lengths)
+        self.index = self.build_index(self.lengths)
+        pass
 
     def __len__(self) -> int:
-        return len(self.samples)
+        return self.len
 
     def __getitem__(self, idx) -> dict[str, str]:
-        return self.samples[idx]
+        return self.get_sample_by_index(idx)
+
+    def get_sample_by_index(self, idx):
+        idx_in, idx_out = self.index[idx]
+        item_project = self.prepared_dataset[idx_in]
+        project_context = self.merge_context(item_project["context"])
+        item_completion = item_project["completion"][idx_out]
+        file_context = "\n" + item_project["completion_path"] + "\n\n" + item_completion["prefix"]
+        full_context = (project_context + file_context).strip() + "\n"
+        sample = {"context": full_context, "gt": item_completion["gt"], "type": item_completion["type"]}
+
+        return sample
+
+    @staticmethod
+    def merge_context(context: Dict[str, str]) -> str:
+        context_lines = []
+        for key, value in context.items():
+            if value == "":
+                value = "# empty file"
+            context_lines.extend([key, "", value, ""])  # empty string is for additional new-line
+
+        return "\n".join(context_lines)
+
+    @staticmethod
+    def build_index(lengths: List[int]):
+        index = []
+        for outer_index, inner_len in enumerate(lengths):
+            for inner_index in range(inner_len):
+                index.append((outer_index, inner_index))
+        return index
 
 
 class StopOnNewLine(StoppingCriteria):
