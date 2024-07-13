@@ -26,6 +26,7 @@ class PLCCDataset(Dataset):
         )
         full_context = (project_context + file_context).strip() + "\n"
         sample = {
+            "id": idx,
             "context": full_context,
             "gt": item_completion["gt"],
             "type": item_completion["type"],

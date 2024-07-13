@@ -29,6 +29,7 @@ class DataloadersFetcher:
             dataset,
             batch_size=self.eval_args.batch_size,
             collate_fn=self.data_collator.collate_fn,
+            shuffle=False,
         )
 
         return dataloader

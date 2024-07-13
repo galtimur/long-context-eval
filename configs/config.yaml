@@ -5,5 +5,5 @@ data:
 model:
   model_name: "deepseek-ai/deepseek-coder-1.3b-base"
 eval:
-  batch_size: 5
-  context_len: 16384 # 16384, 2048
+  batch_size: 20
+  context_len: 4096 # 16384, 2048
