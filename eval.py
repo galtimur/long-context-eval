@@ -1,7 +1,9 @@
+from pathlib import Path
 from omegaconf import OmegaConf
+import json
 
 from data.get_dataloader import DataloadersFetcher
-from eval.eval_by_vllm import EvlaVLLM
+from eval.eval_by_vllm import EvalVLLM
 
 config_path = "configs/config.yaml"
 if config_path is None:
@@ -16,13 +18,14 @@ config = OmegaConf.load(config_path)
 dl_fetcher = DataloadersFetcher(config)
 dataloaders = dl_fetcher.get_dataloaders()
 
-dataloader = dataloaders[0]
+# dataloader = dataloaders[0]
 # dl_iter = iter(dataloader)
 # item = next(dl_iter)
 # texts = dl_fetcher.tokenizer.batch_decode(item, skip_special_tokens=True)
 
-# TODO correct, now context size is a list of contexts
-evaluator = EvlaVLLM(config.model.model_name, config.eval.context_size)
-summary, results = evaluator.eval(dataloader)
-
-pass
+evaluator = EvalVLLM(
+    config.model.model_name,
+    result_folder=config.output.result_folder,
+    cache_dir=config.output.cache_dir,
+)
+summary_res, results = evaluator.eval(dataloaders, limit=5)
