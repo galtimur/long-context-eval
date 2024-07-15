@@ -1,5 +1,6 @@
 data:
   composer_name: "path_distance"
+  context_scopes: ["medium_context", "large_context", "huge_context"]
   data_folder: /mnt/data2/galimzyanov/long-contex-eval/datasets/
   force_prepare: false
 model:

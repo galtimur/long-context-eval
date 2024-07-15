@@ -83,12 +83,7 @@ class Preparator:
         # We do not use small context. It can cause problems.
         # Author: These are repositories that eventually became Python,
         # and we caught them at a time when Python code was not there
-        self.context_sizes = [
-            # "small_context",
-            "medium_context",
-            # "large_context",
-            # "huge_context",
-        ]
+        self.context_scopes = list(data_args.context_scopes)
         self.composer_name = data_args.composer_name
         if self.composer_name == "path_distance":
             self.composers = PathDistanceComposer()
@@ -99,22 +94,22 @@ class Preparator:
 
     def get_prepared_datasets(self) -> list[dict]:
         datasets = []
-        for context_size in self.context_sizes:
-            dataset_filename = f"plcc_{self.composer_name}_{context_size}.jsonl"
+        for context_scope in self.context_scopes:
+            dataset_filename = f"plcc_{self.composer_name}_{context_scope}.jsonl"
             dataset_file = self.data_folder / dataset_filename
 
             if dataset_file.exists() and not self.force_prepare:
                 print(f"Dataset part exists: {dataset_filename}. Loading it.")
                 processed_data = read_jsonl(dataset_file)
                 datasets.append(
-                    {"context_size": context_size, "dataset": processed_data}
+                    {"context_scope": context_scope, "dataset": processed_data}
                 )
                 continue
 
-            print(f"Context size - {context_size}")
+            print(f"Context scope - {context_scope}")
             dataset_hf = load_dataset(
                 self.dataset_name,
-                name=context_size,
+                name=context_scope,
                 split="test",
             )
             dataset_dp = convert_hf_to_datapoint(dataset_hf)
@@ -124,7 +119,7 @@ class Preparator:
                 self.composers.context_composer,
                 self.composers.completion_composer,
             )
-            datasets.append({"context_size": context_size, "dataset": processed_data})
+            datasets.append({"context_scope": context_scope, "dataset": processed_data})
 
             save_jsonl(processed_data, dataset_file)
             print(f"Dataset part saved to {self.data_folder}")

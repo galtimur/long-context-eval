@@ -10,7 +10,7 @@ def get_datasets(data_args: DictConfig) -> dict[str, PLCCDataset]:
     datasets = dict()
 
     for prepared_dataset in prepared_datasets:
-        context_size = prepared_dataset["context_size"]
-        datasets[context_size] = PLCCDataset(prepared_dataset["dataset"])
+        context_scope = prepared_dataset["context_scope"]
+        datasets[context_scope] = PLCCDataset(prepared_dataset["dataset"])
 
     return datasets

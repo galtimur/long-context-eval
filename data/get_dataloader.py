@@ -37,7 +37,7 @@ class DataloadersFetcher:
     def get_dataloaders(self) -> Dict[str, DataLoader]:
         datasets = get_datasets(self.data_args)
         dataloaders = dict()
-        for context_size, dataset in datasets.items():
-            dataloaders[context_size] = self.get_dataloader(dataset)
+        for context_scope, dataset in datasets.items():
+            dataloaders[context_scope] = self.get_dataloader(dataset)
 
         return dataloaders
