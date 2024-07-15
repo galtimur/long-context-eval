@@ -1,6 +1,6 @@
+import json
 from collections import defaultdict
 from pathlib import Path
-import json
 
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -11,7 +11,7 @@ class EvalVLLM:
     def __init__(
         self,
         model_name: str,
-        result_folder: str,
+        result_folder: str | Path,
         result_filname: str = "results.jsonl",
         cache_dir: str | None = None,
         context_size: int | None = None,
@@ -81,7 +81,7 @@ class EvalVLLM:
 
     def save_summary(
         self, summary_res: dict, results: list[list], dataloader_dict: dict
-    ) -> None:
+    ):
         context_size = dataloader_dict["context_size"]
         context_scope = dataloader_dict["context_scope"]
         summary = {

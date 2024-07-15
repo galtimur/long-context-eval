@@ -1,6 +1,4 @@
-from pathlib import Path
 from omegaconf import OmegaConf
-import json
 
 from data.get_dataloader import DataloadersFetcher
 from eval.eval_by_vllm import EvalVLLM
