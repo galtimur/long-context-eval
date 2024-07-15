@@ -1,5 +1,3 @@
-from typing import Dict
-
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
@@ -20,7 +18,6 @@ class DataloadersFetcher:
         self.tokenizer = AutoTokenizer.from_pretrained(config.model.model_name)
 
     def get_dataloader(self, dataset: PLCCDataset, context_size: int) -> DataLoader:
-
         data_collator = DataCollator(
             context_size=context_size,
             batch_size=self.eval_args.batch_size,
@@ -35,12 +32,15 @@ class DataloadersFetcher:
 
         return dataloader
 
-    def get_dataloaders(self) -> Dict[str, DataLoader]:
+    def get_dataloaders(self) -> list[dict]:
         datasets = get_datasets(self.data_args)
-        dataloaders = dict()
+        dataloaders = []
         for context_size in self.context_sizes:
-            dataloaders[context_size] = dict()
             for context_scope, dataset in datasets.items():
-                dataloaders[context_size][context_scope] = self.get_dataloader(dataset, context_size)
-
+                dataloader_dict = {
+                    "context_size": context_size,
+                    "context_scope": context_scope,
+                    "dataloader": self.get_dataloader(dataset, context_size),
+                }
+                dataloaders.append(dataloader_dict)
         return dataloaders

@@ -16,7 +16,7 @@ config = OmegaConf.load(config_path)
 dl_fetcher = DataloadersFetcher(config)
 dataloaders = dl_fetcher.get_dataloaders()
 
-dataloader = dataloaders[2048]["medium_context"]
+dataloader = dataloaders[0]
 # dl_iter = iter(dataloader)
 # item = next(dl_iter)
 # texts = dl_fetcher.tokenizer.batch_decode(item, skip_special_tokens=True)
