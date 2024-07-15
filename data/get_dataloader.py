@@ -13,22 +13,23 @@ class DataloadersFetcher:
     def __init__(self, config: DictConfig):
         self.data_args = config.data
         self.eval_args = config.eval
-
+        self.context_sizes = self.eval_args.context_sizes
         # TODO move context tokenization to the datasets to reduce redundant work
         #  But be careful with sos and other special tokens
 
         self.tokenizer = AutoTokenizer.from_pretrained(config.model.model_name)
-        self.data_collator = DataCollator(
-            context_len=self.eval_args.context_len,
+
+    def get_dataloader(self, dataset: PLCCDataset, context_size: int) -> DataLoader:
+
+        data_collator = DataCollator(
+            context_size=context_size,
             batch_size=self.eval_args.batch_size,
             tokenizer=self.tokenizer,
         )
-
-    def get_dataloader(self, dataset: PLCCDataset) -> DataLoader:
         dataloader = DataLoader(
             dataset,
             batch_size=self.eval_args.batch_size,
-            collate_fn=self.data_collator.collate_fn,
+            collate_fn=data_collator.collate_fn,
             shuffle=False,
         )
 
@@ -37,7 +38,9 @@ class DataloadersFetcher:
     def get_dataloaders(self) -> Dict[str, DataLoader]:
         datasets = get_datasets(self.data_args)
         dataloaders = dict()
-        for context_scope, dataset in datasets.items():
-            dataloaders[context_scope] = self.get_dataloader(dataset)
+        for context_size in self.context_sizes:
+            dataloaders[context_size] = dict()
+            for context_scope, dataset in datasets.items():
+                dataloaders[context_size][context_scope] = self.get_dataloader(dataset, context_size)
 
         return dataloaders

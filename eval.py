@@ -7,7 +7,6 @@ config_path = "configs/config.yaml"
 if config_path is None:
     config_path = "configs/config.yaml"
 config = OmegaConf.load(config_path)
-data_args, model_args, eval_args = config.data, config.model, config.eval
 # config = OmegaConf.to_container(config, resolve=True)
 
 # TODO add context lengths to config
@@ -17,12 +16,13 @@ data_args, model_args, eval_args = config.data, config.model, config.eval
 dl_fetcher = DataloadersFetcher(config)
 dataloaders = dl_fetcher.get_dataloaders()
 
-dataloader = dataloaders["medium_context"]
+dataloader = dataloaders[2048]["medium_context"]
 # dl_iter = iter(dataloader)
 # item = next(dl_iter)
 # texts = dl_fetcher.tokenizer.batch_decode(item, skip_special_tokens=True)
 
-evaluator = EvlaVLLM(config.model.model_name, config.eval.context_len)
+# TODO correct, now context size is a list of contexts
+evaluator = EvlaVLLM(config.model.model_name, config.eval.context_size)
 summary, results = evaluator.eval(dataloader)
 
 pass

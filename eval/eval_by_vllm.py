@@ -6,10 +6,10 @@ from vllm import LLM, SamplingParams
 
 
 class EvlaVLLM:
-    def __init__(self, model_name: str, context_len: int):
+    def __init__(self, model_name: str, context_size: int):
         self.model = LLM(
             model=model_name,
-            max_seq_len_to_capture=context_len,
+            max_seq_len_to_capture=context_size,
             download_dir="/mnt/data2/tmp",
         )
         self.sampling_params = SamplingParams(
