@@ -12,6 +12,7 @@ data_args, model_args, eval_args = config.data, config.model, config.eval
 
 # TODO add context lengths to config
 # TODO add check that the real context length is larger that config value
+# TODO Make a context length independent of the tokenizer.
 
 dl_fetcher = DataloadersFetcher(config)
 dataloaders = dl_fetcher.get_dataloaders()
