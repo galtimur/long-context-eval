@@ -65,6 +65,7 @@ class EvalVLLM:
         return summary, results
 
     def eval(self, dataloaders: dict, limit: int = -1) -> list[dict]:
+        print(f"Results would be appended into {self.result_file}")
         for dataloader_dict in dataloaders:
             context_size = dataloader_dict["context_size"]
             context_scope = dataloader_dict["context_scope"]
@@ -74,8 +75,7 @@ class EvalVLLM:
             )
             summary_res, results = self.eval_dataset(dataloader, limit=limit)
             summary = self.save_summary(summary_res, results, dataloader_dict)
-            print(summary)
-        print(f"Results are saved into {self.result_file}")
+            # print(summary)
 
         return summary
 
