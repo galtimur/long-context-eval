@@ -1,10 +1,13 @@
+output:
+  cache_dir: /mnt/data2/tmp
+  result_folder: /mnt/data2/galimzyanov/long-contex-eval/output/
 data:
   composer_name: "path_distance"
-  context_scopes: ["medium_context"] #, "large_context", "huge_context"
+  context_scopes: ["medium_context", "large_context"] #, "large_context", "huge_context"
   data_folder: /mnt/data2/galimzyanov/long-contex-eval/datasets/
   force_prepare: false
 model:
   model_name: "deepseek-ai/deepseek-coder-1.3b-base"
 eval:
-  batch_size: 20
-  context_sizes: [2048, 4096] # 16384, 2048
+  batch_size_vllm: 20
+  context_sizes: [2048, 4096] # 2048, 4096, 16384

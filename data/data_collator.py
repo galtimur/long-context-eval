@@ -5,13 +5,11 @@ class DataCollator:
     def __init__(
         self,
         context_size: int,
-        batch_size: int,
         tokenizer: AutoTokenizer,
         context_key: str = "context",
         ground_truth_key: str = "gt",
         metainfo_key: str = "type",
     ) -> None:
-        self.batch_size = batch_size
         self.buffer = []
         self.tokenizer = tokenizer
         self.tokenizer.truncation_side = "left"

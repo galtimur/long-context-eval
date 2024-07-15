@@ -20,12 +20,11 @@ class DataloadersFetcher:
     def get_dataloader(self, dataset: PLCCDataset, context_size: int) -> DataLoader:
         data_collator = DataCollator(
             context_size=context_size,
-            batch_size=self.eval_args.batch_size,
             tokenizer=self.tokenizer,
         )
         dataloader = DataLoader(
             dataset,
-            batch_size=self.eval_args.batch_size,
+            batch_size=self.eval_args.batch_size_vllm,
             collate_fn=data_collator.collate_fn,
             shuffle=False,
         )
